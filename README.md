@@ -1,0 +1,2 @@
+# IGGWORDLE
+Play IGG Wordle  
