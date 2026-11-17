@@ -1,0 +1,111 @@
+body {
+    background: #121213;
+    color: white;
+    font-family: Arial;
+    text-align: center;
+    margin: 0;
+}
+
+h1 {
+    font-size: 35px;
+    letter-spacing: 5px;
+    border-bottom: 1px solid #3a3a3c;
+    padding: 15px;
+    margin: 0;
+}
+
+p {
+    color: #aaa;
+    font-size: 14px;
+}
+
+#board {
+    display: grid;
+    grid-template-columns: repeat(5, 55px);
+    gap: 6px;
+    justify-content: center;
+    margin: 25px auto 35px;
+}
+
+.tile {
+    width: 55px;
+    height: 55px;
+    border: 2px solid #3a3a3c;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 25px;
+    font-weight: bold;
+}
+
+.keyboard-row {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    margin-bottom: 10px;
+    padding: 0 8px;
+}
+
+.key {
+    width: 54px;
+    height: 55px;
+    border: none;
+    border-radius: 5px;
+    background: #818384;
+    color: white;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.special {
+    width: 82px;
+    font-size: 12px;
+}
+
+.green {
+    background: #538d4e !important;
+    border-color: #538d4e !important;
+}
+
+.yellow {
+    background: #b59f3b !important;
+    border-color: #b59f3b !important;
+}
+
+.gray {
+    background: #3a3a3c !important;
+    border-color: #3a3a3c !important;
+}
+
+#message {
+    margin: 20px;
+}
+
+button {
+    cursor: pointer;
+}
+
+body > button {
+    background: #538d4e;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 12px 25px;
+}
+
+@media (max-width: 400px) {
+    .key {
+        width: 8vw;
+        height: 48px;
+        font-size: 12px;
+    }
+
+    .special {
+        width: 13vw;
+    }
+
+    .keyboard-row {
+        gap: 4px;
+    }
+}

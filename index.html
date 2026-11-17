@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>IGG Wordle</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<h1>IGG WORDLE</h1>
+<p>Guess the 5-letter word in 6 attempts!</p>
+
+<div id="board"></div>
+
+<div id="row1" class="keyboard-row"></div>
+<div id="row2" class="keyboard-row"></div>
+<div id="row3" class="keyboard-row"></div>
+
+<h3 id="message"></h3>
+<button onclick="restartGame()">NEW GAME</button>
+
+<script>
+
+let row = 0;
+let col = 0;
+let guess = "";
+let gameOver = false;
+
+let board = document.getElementById("board");
+
+// Create 30 game boxes
+for (let i = 0; i < 30; i++) {
+    let tile = document.createElement("div");
+    tile.className = "tile";
+    board.appendChild(tile);
+}
+
+// Create keyboard
+let keys = [
+    ["Q","W","E","R","T","Y","U","I","O","P"],
+    ["A","S","D","F","G","H","J","K","L"],
+    ["ENTER","Z","X","C","V","B","N","M","⌫"]
+];
+
+for (let i = 0; i < 3; i++) {
+    for (let j = 0; j < keys[i].length; j++) {
+
+        let key = document.createElement("button");
+        key.innerText = keys[i][j];
+        key.className = "key";
+
+        if (key.innerText == "ENTER" || key.innerText == "⌫")
+            key.classList.add("special");
+
+        key.onclick = function() {
+            if (key.innerText == "ENTER")
+                submitGuess();
+            else if (key.innerText == "⌫")
+                backspace();
+            else
+                addLetter(key.innerText);
+        };
+
+        document.getElementById("row" + (i + 1)).appendChild(key);
+    }
+}
+
+// Add letters
+function addLetter(letter) {
+    if (gameOver || col == 5) return;
+
+    board.children[row * 5 + col].innerText = letter;
+    guess += letter;
+    col++;
+}
+
+// Remove letters
+function backspace() {
+    if (gameOver || col == 0) return;
+
+    col--;
+    guess = guess.slice(0, -1);
+    board.children[row * 5 + col].innerText = "";
+}
+
+// Computer keyboard support
+document.addEventListener("keydown", function(e) {
+    if (e.key == "Enter") submitGuess();
+    else if (e.key == "Backspace") backspace();
+    else if (/^[a-z]$/i.test(e.key))
+        addLetter(e.key.toUpperCase());
+});
+
+// Check the guessed word
+async function submitGuess() {
+    if (col != 5 || gameOver) return;
+
+    let response = await fetch("/guess", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({guess: guess})
+    });
+
+    let data = await response.json();
+
+    if (data.message) {
+        document.getElementById("message").innerText = data.message;
+        return;
+    }
+
+    for (let i = 0; i < 5; i++) {
+
+        let tile = board.children[row * 5 + i];
+        tile.classList.add(data.result[i]);
+
+        let buttons = document.querySelectorAll(".key");
+
+        for (let j = 0; j < buttons.length; j++) {
+            if (buttons[j].innerText == guess[i]) {
+
+                if (data.result[i] == "green") {
+                    buttons[j].classList.remove("yellow", "gray");
+                    buttons[j].classList.add("green");
+                }
+                else if (data.result[i] == "yellow" &&
+                         !buttons[j].classList.contains("green")) {
+                    buttons[j].classList.remove("gray");
+                    buttons[j].classList.add("yellow");
+                }
+                else if (!buttons[j].classList.contains("green") &&
+                         !buttons[j].classList.contains("yellow")) {
+                    buttons[j].classList.add("gray");
+                }
+            }
+        }
+    }
+
+    row++;
+    col = 0;
+    guess = "";
+
+    if (data.game_over) {
+        gameOver = true;
+
+        if (data.won)
+            document.getElementById("message").innerText = "YOU WON!";
+        else
+            document.getElementById("message").innerText =
+                "GAME OVER! Word: " + data.answer;
+    }
+}
+
+// Restart game
+async function restartGame() {
+    await fetch("/restart", {method: "POST"});
+    location.reload();
+}
+
+</script>
+</body>
+</html>
